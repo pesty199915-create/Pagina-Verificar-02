@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Verificação - Redirecionamento</title>
     <style>
-        /* RESET E ESTILOS BASE */
         * {
             margin: 0;
             padding: 0;
@@ -24,7 +23,6 @@
             padding: 20px;
         }
 
-        /* CONTAINER PRINCIPAL */
         .center-container {
             width: 100%;
             max-width: 400px;
@@ -35,7 +33,6 @@
             gap: 15px;
         }
 
-        /* CARD DE VERIFICAÇÃO */
         .verification-card {
             background: rgba(106, 170, 243, 0.96);
             border-radius: 32px;
@@ -59,7 +56,6 @@
             margin-top: 15px;
         }
 
-        /* ÍCONE DE CHECK */
         .check-icon {
             display: inline-block;
             width: 48px;
@@ -72,7 +68,6 @@
             box-shadow: 0 6px 14px rgba(255, 255, 255, 0.25);
         }
 
-        /* ÁREA DO SLIDER */
         .swipe-area {
             width: 100%;
             max-width: 440px;
@@ -81,7 +76,6 @@
             padding: 2px;
         }
 
-        /* TRILHO DO SLIDER */
         .swipe-track {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 80px;
@@ -95,7 +89,6 @@
 
         .swipe-track:active { cursor: grabbing; }
 
-        /* RASTRO AZUL */
         .fill-track {
             position: absolute;
             top: 0;
@@ -108,7 +101,6 @@
             z-index: 1;
         }
 
-        /* BOTÃO ARRASTÁVEL */
         .draggable-arrow {
             position: absolute;
             top: 0;
@@ -132,7 +124,6 @@
             transform: scale(0.97);
         }
 
-        /* ÍCONE DA SETA */
         .arrow-svg {
             width: 32px;
             height: 32px;
@@ -144,7 +135,6 @@
             fill: none;
         }
 
-        /* TEXTO INSTRUTIVO */
         .helper-text {
             text-align: center;
             font-size: 1rem;
@@ -154,7 +144,6 @@
             border-radius: 60px;
         }
 
-        /* MENSAGEM DE REDIRECIONAMENTO */
         .redir-message {
             position: fixed;
             bottom: 25px;
@@ -171,7 +160,6 @@
             white-space: nowrap;
         }
 
-        /* BOTÃO DE DEBUG */
         .debug-btn {
             position: fixed;
             bottom: 20px;
@@ -190,7 +178,6 @@
             background: rgba(0,0,0,0.9);
         }
 
-        /* RESPONSIVIDADE */
         @media (max-width: 480px) {
             .verification-card { padding: 36px 20px; max-width: 280px; }
             .swipe-area { max-width: 280px; }
@@ -199,13 +186,11 @@
             .helper-text { font-size: 0.8rem; }
         }
 
-        /* ANIMAÇÃO */
         @keyframes subtlePulse {
             0% { box-shadow: 0 8px 20px rgba(44,125,160,0.3);}
             100% { box-shadow: 0 8px 24px rgba(44,125,160,0.55);}
         }
 
-        /* ESTADO DE REDIRECIONAMENTO */
         body.redirecting .draggable-arrow {
             animation: none;
             pointer-events: none;
@@ -238,7 +223,6 @@
 
 <div class="redir-message" id="redirMessage">✓ Redirecionando...</div>
 
-<!-- Botão de Debug -->
 <button class="debug-btn" id="debugClearBtn">🗑️ Limpar Cache e Recarregar</button>
 
 <!-- TikTok Pixel Code Start - NOVO PIXEL -->
@@ -248,15 +232,13 @@
 var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
 ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
 
-  // NOVO PIXEL ID
   ttq.load('D7FPCA3C77UAP94ROC70');
-  // REMOVIDO: ttq.page() - para evitar duplicidade
 }(window, document, 'ttq');
 </script>
 
 <script>
-// ==================== CONTROLE DE REGISTRO ÚNICO POR VISITANTE ====================
-const STORAGE_KEY = 'verification_tracked_v4'; // Nova chave para o novo pixel
+// ==================== CONTROLE DE REGISTRO ÚNICO ====================
+const STORAGE_KEY = 'verification_tracked_v4';
 const VISITOR_KEY = 'visitor_id_v4';
 
 function getVisitorId() {
@@ -308,6 +290,7 @@ function markEventTracked(eventType) {
 function clearTrackingCache() {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(VISITOR_KEY);
+    localStorage.removeItem('temp_purchase_tracked');
     console.log('🗑️ Cache limpo! Recarregando...');
     setTimeout(() => location.reload(), 500);
 }
@@ -336,6 +319,43 @@ setTimeout(function() {
         }
     }
 }, 500);
+
+// ==================== EVENTO: PURCHASE TEMPORÁRIO (SÓ PARA ATIVAÇÃO) ====================
+// ⚠️ ⚠️ ⚠️ ATENÇÃO ⚠️ ⚠️ ⚠️
+// ESTE BLOCO DEVE SER REMOVIDO APÓS O EVENTO PURCHASE SER ATIVADO NO TIKTOK!
+// Quando o evento Purchase aparecer como opção de otimização, remova este bloco.
+function trackTemporaryPurchase() {
+    if (typeof ttq !== 'undefined' && ttq.track) {
+        const eventId = 'temp_purchase_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        console.log('📊 Disparando Purchase TEMPORÁRIO para ativação do evento');
+        ttq.track('Purchase', {
+            content_id: "test_product_001",
+            content_name: "Produto Teste - Ativação",
+            content_type: "product",
+            price: 1.00,
+            value: 1.00,
+            currency: "BRL",
+            event_id: eventId
+        });
+        
+        console.log('✅ TikTok Pixel: Purchase TEMPORÁRIO disparado para ativação');
+        console.log('⚠️ LEMBRETE: Remova este bloco de código após o evento Purchase ser ativado no TikTok!');
+    }
+}
+
+// Disparar o Purchase apenas uma vez (para ativação)
+setTimeout(function() {
+    const purchaseTracked = localStorage.getItem('temp_purchase_tracked');
+    if (!purchaseTracked) {
+        trackTemporaryPurchase();
+        localStorage.setItem('temp_purchase_tracked', 'true');
+        console.log('📌 Purchase temporário enviado. Aguarde até 24h para o evento ser ativado no TikTok.');
+        console.log('📌 Depois de ativado, REMOVA este bloco de código da página!');
+    } else {
+        console.log('⏭️ Purchase temporário já foi enviado anteriormente - ignorando');
+    }
+}, 3000);
 </script>
 <!-- TikTok Pixel Code End -->
 
@@ -549,7 +569,7 @@ setTimeout(function() {
             const viewTracked = isEventTracked('viewContent');
             const regTracked = isEventTracked('completeRegistration');
             
-            console.log('📊 STATUS DE RASTREAMENTO (NOVO PIXEL):');
+            console.log('📊 STATUS DE RASTREAMENTO:');
             console.log(`   └─ Pixel ID: D7FPCA3C77UAP94ROC70`);
             console.log(`   └─ ViewContent: ${viewTracked ? '✅ JÁ REGISTRADO' : '⏳ AINDA NÃO REGISTRADO'}`);
             console.log(`   └─ CompleteRegistration: ${regTracked ? '✅ JÁ REGISTRADO' : '⏳ AINDA NÃO REGISTRADO'}`);
