@@ -1,567 +1,95 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Verificação - Redirecionamento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conteúdo Exclusivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* RESET E ESTILOS BASE */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         body {
-            background: linear-gradient(145deg, #25272b 0%, #161616 100%);
-            min-height: 100vh;
+            background-color: #0b0b0b;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-            padding: 20px;
-        }
-
-        /* CONTAINER PRINCIPAL */
-        .center-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* CARD DE VERIFICAÇÃO */
-        .verification-card {
-            background: rgba(106, 170, 243, 0.96);
-            border-radius: 32px;
-            width: 100%;
-            max-width: 440px;
-            padding: 48px 24px;
-            text-align: center;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .verification-card h2 {
-            font-size: 1.85rem;
-            color: #1a2c3e;
-            margin: 8px 0;
-        }
-
-        .verification-card p {
-            font-size: 1rem;
-            color: #000000;
-            margin-top: 15px;
-        }
-
-        /* ÍCONE DE CHECK */
-        .check-icon {
-            display: inline-block;
-            width: 48px;
-            height: 48px;
-            background: #2c7da0;
-            color: white;
-            border-radius: 60px;
-            line-height: 52px;
-            font-size: 28px;
-            box-shadow: 0 6px 14px rgba(255, 255, 255, 0.25);
-        }
-
-        /* ÁREA DO SLIDER */
-        .swipe-area {
-            width: 100%;
-            max-width: 440px;
-            background: rgba(179, 162, 162, 0.5);
-            border-radius: 80px;
-            padding: 2px;
-        }
-
-        /* TRILHO DO SLIDER */
-        .swipe-track {
-            background: rgba(255, 255, 255, 0.96);
-            border-radius: 80px;
-            position: relative;
-            height: 68px;
-            width: 100%;
-            cursor: grab;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            align-items: flex-start; 
+            height: 100vh;
+            margin: 0;
             overflow: hidden;
+            font-family: 'Inter', sans-serif;
         }
 
-        .swipe-track:active { cursor: grabbing; }
-
-        /* RASTRO AZUL */
-        .fill-track {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%;
-            background: #2c7da0;
-            border-radius: 80px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* BOTÃO ARRASTÁVEL */
-        .draggable-arrow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 68px;
-            height: 68px;
-            background: #2c7da0;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(44, 125, 160, 0.35);
-            cursor: grab;
-            z-index: 10;
-            touch-action: none;
-            animation: subtlePulse 1.6s infinite alternate;
-        }
-
-        .draggable-arrow:active {
-            cursor: grabbing;
-            transform: scale(0.97);
-        }
-
-        /* ÍCONE DA SETA */
-        .arrow-svg {
-            width: 32px;
-            height: 32px;
-            pointer-events: none;
-        }
-        .arrow-svg path {
-            stroke: white;
-            stroke-width: 2.2;
-            fill: none;
-        }
-
-        /* TEXTO INSTRUTIVO */
-        .helper-text {
+        .main-container {
             text-align: center;
-            font-size: 1rem;
-            color: #000000;
-            background: rgba(106, 170, 243, 0.96);
-            padding: 8px 18px;
-            border-radius: 60px;
+            /* Controla a altura de todo o conjunto na tela */
+            margin-top: 45vh; 
         }
 
-        /* MENSAGEM DE REDIRECIONAMENTO */
-        .redir-message {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.8rem;
-            color: #1f6e43;
-            background: #e0f2e9;
-            padding: 8px 16px;
-            border-radius: 60px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
+        .title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            /* Diminuído para o texto ficar "colado" no botão */
+            margin-bottom: 1.2rem; 
+            letter-spacing: -0.025em;
         }
 
-        /* BOTÃO DE DEBUG */
-        .debug-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
+        .btn-acesso {
+            display: inline-block;
+            background: linear-gradient(90deg, #9131F7 0%, #E22194 100%);
             color: white;
+            /* Botão bem largo nas laterais */
+            padding: 1.2rem 7rem; 
+            border-radius: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            text-decoration: none;
             border: none;
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-size: 12px;
             cursor: pointer;
-            z-index: 1000;
-            font-family: monospace;
-        }
-        .debug-btn:hover {
-            background: rgba(0,0,0,0.9);
+            position: relative;
+            animation: pulse-animation 1.2s infinite;
+            white-space: nowrap; 
         }
 
-        /* RESPONSIVIDADE */
-        @media (max-width: 480px) {
-            .verification-card { padding: 36px 20px; max-width: 280px; }
-            .swipe-area { max-width: 280px; }
-            .draggable-arrow, .swipe-track { width: 60px; height: 60px; }
-            .arrow-svg { width: 28px; height: 28px; }
-            .helper-text { font-size: 0.8rem; }
+        @keyframes pulse-animation {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(145, 49, 247, 0.7);
+            }
+            70% {
+                transform: scale(1.03);
+                box-shadow: 0 0 0 20px rgba(145, 49, 247, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(145, 49, 247, 0);
+            }
         }
 
-        /* ANIMAÇÃO */
-        @keyframes subtlePulse {
-            0% { box-shadow: 0 8px 20px rgba(44,125,160,0.3);}
-            100% { box-shadow: 0 8px 24px rgba(44,125,160,0.55);}
-        }
-
-        /* ESTADO DE REDIRECIONAMENTO */
-        body.redirecting .draggable-arrow {
+        .btn-acesso:active {
+            transform: scale(0.95);
             animation: none;
-            pointer-events: none;
         }
-        body.redirecting .swipe-track { cursor: default; }
     </style>
 </head>
 <body>
 
-<div class="center-container">
-    <div class="verification-card">
-        <div class="check-icon">✓</div>
-        <h2>Verificação</h2>
-        <p>confirme o acesso seguro</p>
+    <div class="main-container">
+        <h1 class="title">Conteúdo exclusivo</h1>
+        
+        <button onclick="irParaDestino()" class="btn-acesso">
+            Acessar Agora
+        </button>
     </div>
 
-    <div class="swipe-area">
-        <div class="swipe-track" id="swipeTrack">
-            <div class="fill-track" id="fillTrack"></div>
-            <div class="draggable-arrow" id="draggableArrow">
-                <svg class="arrow-svg" viewBox="0 0 24 24">
-                    <path d="M5 12H19M13 6L19 12L13 18" stroke="white" stroke-width="2" fill="none"/>
-                </svg>
-            </div>
-        </div>
-    </div>
+    <script>
+        function irParaDestino() {
+            // Substitua pelo seu link de checkout/sharkbot
+            const linkDestino = "https://vipexclusivo.site/l/3b7ec87d?shk=19aqioha";
+            const urlParams = window.location.search;
+            window.location.href = linkDestino + urlParams;
+        }
+    </script>
 
-    <div class="helper-text">↳ Arraste a seta pra direita ↲</div>
-</div>
-
-<div class="redir-message" id="redirMessage">✓ Redirecionando...</div>
-
-<!-- Botão de Debug -->
-<button class="debug-btn" id="debugClearBtn">🗑️ Limpar Cache e Recarregar</button>
-
-<!-- TikTok Pixel Code Start - NOVO PIXEL -->
-<script>
-!function (w, d, t) {
-  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
-var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
-;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-
-  // NOVO PIXEL ID
-  ttq.load('D7FPCA3C77UAP94ROC70');
-  // REMOVIDO: ttq.page() - para evitar duplicidade
-}(window, document, 'ttq');
-</script>
-
-<script>
-// ==================== CONTROLE DE REGISTRO ÚNICO POR VISITANTE ====================
-const STORAGE_KEY = 'verification_tracked_v4'; // Nova chave para o novo pixel
-const VISITOR_KEY = 'visitor_id_v4';
-
-function getVisitorId() {
-    let visitorId = localStorage.getItem(VISITOR_KEY);
-    if (!visitorId) {
-        visitorId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem(VISITOR_KEY, visitorId);
-    }
-    return visitorId;
-}
-
-function generateEventId() {
-    return 'verification_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-
-function isEventTracked(eventType) {
-    const tracked = localStorage.getItem(STORAGE_KEY);
-    if (tracked) {
-        try {
-            const data = JSON.parse(tracked);
-            return data[eventType] === true;
-        } catch(e) {
-            return false;
-        }
-    }
-    return false;
-}
-
-function markEventTracked(eventType) {
-    let tracked = localStorage.getItem(STORAGE_KEY);
-    let data = {};
-    
-    if (tracked) {
-        try {
-            data = JSON.parse(tracked);
-        } catch(e) {
-            data = {};
-        }
-    }
-    
-    data[eventType] = true;
-    data.visitorId = getVisitorId();
-    data.timestamp = Date.now();
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    console.log(`✅ Evento ${eventType} marcado como registrado`);
-}
-
-function clearTrackingCache() {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(VISITOR_KEY);
-    console.log('🗑️ Cache limpo! Recarregando...');
-    setTimeout(() => location.reload(), 500);
-}
-
-document.getElementById('debugClearBtn').addEventListener('click', clearTrackingCache);
-
-// ==================== EVENTO: VIEWCONTENT ====================
-setTimeout(function() {
-    if (typeof ttq !== 'undefined' && ttq.track) {
-        const viewContentTracked = isEventTracked('viewContent');
-        
-        if (!viewContentTracked) {
-            const eventId = generateEventId();
-            
-            console.log('📊 Disparando ViewContent com event_id:', eventId);
-            ttq.track('ViewContent', {
-                content_id: "verification_page_001",
-                content_name: "Página de Verificação de Acesso",
-                event_id: eventId
-            });
-            
-            markEventTracked('viewContent');
-            console.log('✅ TikTok Pixel (NOVO): ViewContent disparado');
-        } else {
-            console.log('⏭️ ViewContent já registrado - ignorando');
-        }
-    }
-}, 500);
-</script>
-<!-- TikTok Pixel Code End -->
-
-<script>
-    (function() {
-        const track = document.getElementById('swipeTrack');
-        const draggable = document.getElementById('draggableArrow');
-        const fillTrack = document.getElementById('fillTrack');
-        const redirMsg = document.getElementById('redirMessage');
-        
-        let isDragging = false;
-        let startX = 0;
-        let currentTranslate = 0;
-        let startTranslate = 0;
-        let maxTranslate = 0;
-        let isRedirected = false;
-        let registrationTracked = false;
-        
-        function updateMaxTranslate() {
-            if (!track || !draggable) return 0;
-            return Math.max(0, track.getBoundingClientRect().width - draggable.getBoundingClientRect().width);
-        }
-        
-        function updateFillTrack() {
-            if (!fillTrack || !track || !draggable || maxTranslate <= 0) return;
-            
-            const arrowWidth = draggable.getBoundingClientRect().width;
-            const trackWidth = track.getBoundingClientRect().width;
-            
-            let fillWidthPx = currentTranslate + arrowWidth;
-            let percentage = Math.min(100, Math.max(0, (fillWidthPx / trackWidth) * 100));
-            
-            fillTrack.style.width = `${percentage}%`;
-        }
-        
-        function setTranslate(x) {
-            if (!draggable) return;
-            currentTranslate = Math.min(maxTranslate, Math.max(0, x));
-            draggable.style.transform = `translateX(${currentTranslate}px)`;
-            updateFillTrack();
-        }
-        
-        function resetPosition() {
-            if (!draggable) return;
-            draggable.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-            setTranslate(0);
-            
-            if (fillTrack) {
-                fillTrack.style.transition = 'width 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-                fillTrack.style.width = '0%';
-                setTimeout(() => { if (fillTrack) fillTrack.style.transition = ''; }, 260);
-            }
-            
-            setTimeout(() => { if (draggable) draggable.style.transition = ''; }, 260);
-        }
-        
-        function generateEventId() {
-            return 'complete_reg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-        
-        function isCompleteRegistrationTracked() {
-            return isEventTracked('completeRegistration');
-        }
-        
-        function trackCompleteRegistration() {
-            if (isCompleteRegistrationTracked()) {
-                console.log('⏭️ CompleteRegistration já registrado - ignorando');
-                return;
-            }
-            
-            if (registrationTracked) return;
-            registrationTracked = true;
-            
-            if (typeof ttq !== 'undefined' && ttq.track) {
-                const eventId = generateEventId();
-                
-                console.log('📊 Disparando CompleteRegistration com event_id:', eventId);
-                ttq.track('CompleteRegistration', {
-                    content_id: "verification_complete_001",
-                    content_name: "Verificação de Acesso Concluída",
-                    event_id: eventId
-                });
-                
-                markEventTracked('completeRegistration');
-                console.log('✅ TikTok Pixel (NOVO): CompleteRegistration disparado');
-            } else {
-                console.warn('⚠️ TikTok Pixel não carregado');
-            }
-        }
-        
-        function performRedirect() {
-            if (isRedirected) return;
-            isRedirected = true;
-            
-            if (!isCompleteRegistrationTracked()) {
-                trackCompleteRegistration();
-            }
-            
-            document.body.classList.add('redirecting');
-            redirMsg.style.opacity = '1';
-            
-            const card = document.querySelector('.verification-card');
-            if (card) {
-                card.style.transition = 'background 0.2s';
-                card.style.background = '#e9f4f8';
-                setTimeout(() => { if(card) card.style.background = ''; }, 300);
-            }
-            
-            setTimeout(() => { 
-                window.location.href = 'https://paylume.fans/l/127d51d6?shk=tmhwzmw1'; 
-            }, 550);
-        }
-        
-        function checkCompleteDrag() {
-            if (isRedirected) return false;
-            const threshold = maxTranslate * 0.95;
-            if (currentTranslate >= threshold && maxTranslate > 0) {
-                draggable.style.transition = 'transform 0.18s ease-out';
-                setTranslate(maxTranslate);
-                setTimeout(() => { if (!isRedirected) performRedirect(); }, 100);
-                return true;
-            }
-            return false;
-        }
-        
-        function onPointerStart(e) {
-            if (isRedirected) return;
-            e.preventDefault();
-            
-            let clientX = e.type === 'mousedown' ? e.clientX : (e.touches[0]?.clientX);
-            if (clientX === undefined) return;
-            
-            isDragging = true;
-            draggable.style.transition = '';
-            if (fillTrack) fillTrack.style.transition = '';
-            startX = clientX;
-            startTranslate = currentTranslate;
-            
-            window.addEventListener('mousemove', onPointerMove);
-            window.addEventListener('mouseup', onPointerEnd);
-            window.addEventListener('touchmove', onPointerMove, { passive: false });
-            window.addEventListener('touchend', onPointerEnd);
-            window.addEventListener('touchcancel', onPointerEnd);
-        }
-        
-        function onPointerMove(e) {
-            if (!isDragging || isRedirected) return;
-            
-            let currentX = e.type === 'mousemove' ? e.clientX : (e.touches[0]?.clientX);
-            if (currentX === undefined) return;
-            if (e.type === 'touchmove') e.preventDefault();
-            
-            let newTranslate = startTranslate + (currentX - startX);
-            newTranslate = Math.min(maxTranslate, Math.max(0, newTranslate));
-            
-            if (Math.abs(currentX - startX) > 2) {
-                draggable.style.transform = `translateX(${newTranslate}px)`;
-                currentTranslate = newTranslate;
-                updateFillTrack();
-            }
-            
-            if (currentTranslate >= maxTranslate - 1 && !isRedirected && currentTranslate >= maxTranslate * 0.98) {
-                draggable.style.transition = 'transform 0.08s';
-                setTranslate(maxTranslate);
-                performRedirect();
-                isDragging = false;
-                removeGlobalEvents();
-            }
-        }
-        
-        function onPointerEnd() {
-            if (!isDragging) return;
-            isDragging = false;
-            
-            if (!isRedirected) {
-                const completed = checkCompleteDrag();
-                if (!completed) resetPosition();
-            }
-            removeGlobalEvents();
-        }
-        
-        function removeGlobalEvents() {
-            window.removeEventListener('mousemove', onPointerMove);
-            window.removeEventListener('mouseup', onPointerEnd);
-            window.removeEventListener('touchmove', onPointerMove);
-            window.removeEventListener('touchend', onPointerEnd);
-            window.removeEventListener('touchcancel', onPointerEnd);
-        }
-        
-        function handleResize() {
-            if (isRedirected) return;
-            const newMax = updateMaxTranslate();
-            if (currentTranslate > newMax) setTranslate(newMax);
-            maxTranslate = newMax;
-            updateFillTrack();
-        }
-        
-        function init() {
-            maxTranslate = updateMaxTranslate();
-            setTranslate(0);
-            
-            draggable.addEventListener('mousedown', onPointerStart);
-            draggable.addEventListener('touchstart', onPointerStart, { passive: false });
-            draggable.ondragstart = (e) => e.preventDefault();
-            
-            window.addEventListener('resize', () => setTimeout(handleResize, 30));
-            window.addEventListener('orientationchange', () => setTimeout(handleResize, 60));
-            
-            setTimeout(handleResize, 100);
-            
-            const viewTracked = isEventTracked('viewContent');
-            const regTracked = isEventTracked('completeRegistration');
-            
-            console.log('📊 STATUS DE RASTREAMENTO (NOVO PIXEL):');
-            console.log(`   └─ Pixel ID: D7FPCA3C77UAP94ROC70`);
-            console.log(`   └─ ViewContent: ${viewTracked ? '✅ JÁ REGISTRADO' : '⏳ AINDA NÃO REGISTRADO'}`);
-            console.log(`   └─ CompleteRegistration: ${regTracked ? '✅ JÁ REGISTRADO' : '⏳ AINDA NÃO REGISTRADO'}`);
-            console.log(`   └─ Visitor ID: ${getVisitorId()}`);
-            
-            if (typeof ttq !== 'undefined') {
-                console.log('✅ TikTok Pixel (NOVO) carregado com sucesso');
-            }
-        }
-        
-        init();
-    })();
-</script>
 </body>
 </html>
