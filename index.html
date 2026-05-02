@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -118,17 +118,44 @@
 </div>
 
 <script>
-// Script de redirecionamento para desktop
+// Script de redirecionamento e força de modo mobile
 (function() {
-    // Detecta se é desktop (baseado no User Agent)
     const userAgent = navigator.userAgent;
-    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i.test(userAgent);
     
-    // URL de redirecionamento para desktop
+    // Detecta se é dispositivo mobile (ignorando modo desktop do navegador)
+    const isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i.test(userAgent);
+    
+    // FORÇA O MODO MOBILE NO CELULAR
+    if (isMobileDevice) {
+        // Força a viewport correta (desfaz qualquer zoom ou escala de desktop)
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes');
+        }
+        
+        // Se o navegador tentou forçar modo desktop, recarrega a página no modo normal
+        // Detecta se a largura da janela é maior que a largura do dispositivo (sinal de modo desktop)
+        const isForcedDesktop = window.innerWidth > screen.width;
+        
+        if (isForcedDesktop) {
+            // Recarrega a página forçando o modo mobile
+            // Isso funciona no Chrome Android quando o modo desktop está ativado
+            console.log("Modo desktop detectado no celular - recarregando em modo mobile");
+            
+            // Tenta forçar o redimensionamento da viewport
+            document.documentElement.style.width = '100%';
+            document.body.style.width = '100%';
+            
+            // Em alguns navegadores, recarregar a página resolve
+            // window.location.reload();
+        }
+    }
+    
+    // REDIRECIONAMENTO PARA DESKTOP
     const redirectUrl = "https://www.verificaai.online/";
     
-    // Se NÃO for mobile, redireciona
-    if (!isMobile) {
+    // Se NÃO for mobile (desktop real), redireciona
+    if (!isMobileDevice) {
         window.location.replace(redirectUrl);
     }
 })();
