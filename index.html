@@ -2,10 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -121,102 +118,18 @@
 </div>
 
 <script>
-// Script que FORÇA NOVA SESSÃO a cada acesso e limpa cache
+// Script de redirecionamento para desktop
 (function() {
-    // 1. LIMPA TUDO que pode estar salvo no navegador
-    try {
-        // Limpa localStorage
-        localStorage.clear();
-        // Limpa sessionStorage
-        sessionStorage.clear();
-        // Limpa todos os cookies
-        document.cookie.split(";").forEach(function(c) { 
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-        });
-        console.log("✅ Cache e dados locais limpos");
-    } catch(e) {
-        console.log("Erro ao limpar cache:", e);
-    }
+    // Detecta se é desktop (baseado no User Agent)
+    const userAgent = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i.test(userAgent);
     
-    // 2. Gera um ID ÚNICO para esta sessão (força "nova aba")
-    const sessionId = Date.now() + '-' + Math.random().toString(36).substring(2, 15);
-    
-    // 3. Verifica se já existe uma sessão ativa para esta página
-    const lastSession = sessionStorage.getItem('active_session');
-    
-    if (lastSession && lastSession !== sessionId) {
-        // Sessão diferente - recarrega a página como nova
-        console.log("🔄 Nova sessão detectada - recarregando");
-        sessionStorage.setItem('active_session', sessionId);
-        window.location.reload(true); // Reload forçado (ignora cache)
-        return;
-    }
-    
-    // 4. Marca esta sessão como ativa
-    sessionStorage.setItem('active_session', sessionId);
-    
-    // 5. Adiciona um timestamp único na URL para evitar cache (sem recarregar a página)
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has('_t')) {
-        url.searchParams.set('_t', sessionId);
-        window.history.replaceState({}, '', url);
-    }
-    
-    // 6. DETECÇÃO DE MOBILE/DESKTOP (garante detecção mesmo em modo desktop)
-    const ua = navigator.userAgent;
-    const hasAndroid = /Android/i.test(ua);
-    const hasMobileString = /iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i.test(ua);
-    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const screenWidth = screen.width;
-    const isSmallScreen = screenWidth <= 900;
-    
-    let isMobile = false;
-    
-    // Detecção PRIORITÁRIA para mobile
-    if (hasAndroid) {
-        isMobile = true;
-        console.log("✅ Android detectado - mobile");
-    } else if (hasMobileString) {
-        isMobile = true;
-        console.log("✅ Mobile detectado por User Agent");
-    } else if (hasTouch && isSmallScreen) {
-        isMobile = true;
-        console.log("✅ Touch + tela pequena - tratando como mobile");
-    } else {
-        isMobile = false;
-        console.log("💻 Desktop detectado");
-    }
-    
-    // 7. URL de redirecionamento para desktop
+    // URL de redirecionamento para desktop
     const redirectUrl = "https://www.verificaai.online/";
     
-    // 8. Impede loop infinito
-    if (window.location.href.includes("verificaai.online")) {
-        return;
-    }
-    
-    // 9. LOG completo para debug
-    console.log("=== NOVA SESSÃO ===");
-    console.log("Session ID:", sessionId);
-    console.log("User Agent:", ua);
-    console.log("hasAndroid:", hasAndroid);
-    console.log("Tela:", screenWidth + "px");
-    console.log("Resultado: isMobile =", isMobile);
-    console.log("==================");
-    
-    // 10. Se NÃO for mobile -> REDIRECIONA para desktop
+    // Se NÃO for mobile, redireciona
     if (!isMobile) {
-        console.log("🚨 Redirecionando para:", redirectUrl);
-        // Abre em nova aba/tab (opcional)
         window.location.replace(redirectUrl);
-    } else {
-        console.log("📱 Mantendo na página mobile");
-        
-        // Força viewport correta
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=yes');
-        }
     }
 })();
 </script>
