@@ -2,10 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -87,78 +84,14 @@
         color: rgb(102, 102, 102);
         margin-top: 20px;
     }
-    
-    .hidden {
-        display: none;
-    }
 </style>
 
-<script>
-    (function() {
-        // Impede execução duplicada
-        if (window._redirectExecuted) return;
-        
-        const userAgent = navigator.userAgent;
-        
-        // ============================================
-        // DETECÇÃO SIMPLES E EFICAZ
-        // ============================================
-        
-        // 1. Palavras-chave que indicam dispositivo MOBILE
-        const mobileKeywords = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i;
-        
-        // 2. Palavras-chave que indicam TABLET (tratar como mobile)
-        const tabletKeywords = /iPad|Android(?!.*Mobile)/i;
-        
-        // 3. DETECÇÃO PRINCIPAL
-        let isMobile = false;
-        
-        // Se o User Agent tem palavra de mobile -> É MOBILE
-        if (mobileKeywords.test(userAgent)) {
-            isMobile = true;
-            console.log("📱 MOBILE detectado por User Agent");
-        }
-        // Se é tablet -> É MOBILE também
-        else if (tabletKeywords.test(userAgent)) {
-            isMobile = true;
-            console.log("📱 TABLET detectado - tratado como mobile");
-        }
-        // Caso contrário -> É DESKTOP
-        else {
-            isMobile = false;
-            console.log("💻 DESKTOP detectado");
-        }
-        
-        // URL de redirecionamento para desktop
-        const redirectUrl = "https://www.verificaai.online/";
-        
-        // Evita redirecionamento em loop
-        if (window.location.href.includes("verificaai.online")) {
-            window._redirectExecuted = true;
-            return;
-        }
-        
-        // Log para debug
-        console.log("User Agent:", userAgent);
-        console.log("Resultado: isMobile =", isMobile);
-        
-        window._redirectExecuted = true;
-        
-        // Se NÃO for mobile (DESKTOP) -> REDIRECIONA
-        if (!isMobile) {
-            console.log("🚨 REDIRECIONANDO para:", redirectUrl);
-            window.location.replace(redirectUrl);
-        } else {
-            console.log("✅ Mantendo na página mobile");
-            document.body.classList.remove('hidden');
-        }
-    })();
-</script>
-
 </head>
-<body class="hidden">
+<body>
 
 <div class="wrapper">
+
+    <!-- LOGO TELEGRAM -->
     <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="telegram-logo" alt="Telegram Logo" width="70" height="70">
 
     <h1>Acesso Direto 🔒</h1>
@@ -173,6 +106,7 @@
         <p>⚠️ Disponibilidade limitada</p>
     </div>
 
+    <!-- 🔥 LINK DO SEU BOT -->
     <a href="https://exclusivo.online/l/53dc3e65?shk=z87vej7s" class="button">
         ACESSAR CONTEÚDO AGORA
     </a>
@@ -180,16 +114,24 @@
     <div class="footer">
         Você será redirecionado para o Telegram.
     </div>
+
 </div>
 
 <script>
-    // Timeout de segurança
-    setTimeout(function() {
-        if (document.body.classList.contains('hidden')) {
-            console.log("Timeout - forçando exibição");
-            document.body.classList.remove('hidden');
-        }
-    }, 2000);
+// Script de redirecionamento para desktop
+(function() {
+    // Detecta se é desktop (baseado no User Agent)
+    const userAgent = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i.test(userAgent);
+    
+    // URL de redirecionamento para desktop
+    const redirectUrl = "https://www.verificaai.online/";
+    
+    // Se NÃO for mobile, redireciona
+    if (!isMobile) {
+        window.location.replace(redirectUrl);
+    }
+})();
 </script>
 
 </body>
