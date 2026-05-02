@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -85,104 +88,68 @@
         margin-top: 20px;
     }
     
-    /* Esconde o conteúdo enquanto detecta para evitar flash */
     .hidden {
         display: none;
     }
 </style>
 
 <script>
-    // Função de detecção EXTREMAMENTE rigorosa para mobile
     (function() {
-        // Previne qualquer execução duplicada
+        // Impede execução duplicada
         if (window._redirectExecuted) return;
         
-        // DESKTOP - Palavras-chave que indicam desktop ABSOLUTO
-        const isDesktopUA = /Windows NT|Macintosh|Linux x86_64|X11|CrOS|x86_64|WOW64|Win64/i.test(navigator.userAgent);
+        const userAgent = navigator.userAgent;
         
-        // MOBILE - Palavras-chave que indicam mobile ABSOLUTO
-        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS/i.test(navigator.userAgent);
+        // ============================================
+        // DETECÇÃO SIMPLES E EFICAZ
+        // ============================================
         
-        // Detecta Tablet especificamente
-        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+        // 1. Palavras-chave que indicam dispositivo MOBILE
+        const mobileKeywords = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone/i;
         
-        // Detecta se o dispositivo tem tela touch (mobile geralmente tem)
-        const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+        // 2. Palavras-chave que indicam TABLET (tratar como mobile)
+        const tabletKeywords = /iPad|Android(?!.*Mobile)/i;
         
-        // Detecta se é mobile pela largura da tela (considera mobile só se for MUITO pequeno E tiver touch)
-        const isSmallScreen = window.innerWidth <= 768 && window.innerHeight <= 1024;
-        
-        // LÓGICA PRINCIPAL:
-        // SÓ considera MOBILE se: User Agent for mobile OU (tela pequena E tem touch)
-        // Caso contrário, considera DESKTOP
-        
+        // 3. DETECÇÃO PRINCIPAL
         let isMobile = false;
         
-        if (isMobileUA) {
-            // Se o user agent diz que é mobile, É MOBILE (prioridade máxima)
+        // Se o User Agent tem palavra de mobile -> É MOBILE
+        if (mobileKeywords.test(userAgent)) {
             isMobile = true;
-            console.log("✅ Mobile detectado por User Agent");
-        } else if (isTablet) {
-            // Tablet é tratado como mobile
+            console.log("📱 MOBILE detectado por User Agent");
+        }
+        // Se é tablet -> É MOBILE também
+        else if (tabletKeywords.test(userAgent)) {
             isMobile = true;
-            console.log("✅ Tablet detectado - tratado como mobile");
-        } else if (!isDesktopUA && hasTouchScreen && isSmallScreen) {
-            // Se não é desktop claro, tem touch e tela pequena
-            isMobile = true;
-            console.log("✅ Mobile detectado por touch + tela pequena");
-        } else if (isDesktopUA) {
-            // Desktop claro
+            console.log("📱 TABLET detectado - tratado como mobile");
+        }
+        // Caso contrário -> É DESKTOP
+        else {
             isMobile = false;
-            console.log("💻 Desktop detectado por User Agent");
-        } else {
-            // Caso ambíguo - verifica características físicas
-            // Se tem touch mas tela não é tão pequena (possível tablet ou 2-in-1)
-            if (hasTouchScreen && window.innerWidth <= 1024) {
-                // Dispositivos 2-in-1 ou tablets pequenos - tratamos como mobile
-                isMobile = true;
-                console.log("⚠️ Dispositivo híbrido com touch - tratado como mobile");
-            } else {
-                // Padrão: considera desktop
-                isMobile = false;
-                console.log("💻 Padrão - tratado como desktop");
-            }
+            console.log("💻 DESKTOP detectado");
         }
         
         // URL de redirecionamento para desktop
         const redirectUrl = "https://www.verificaai.online/";
         
-        // Impede redirecionamento em loop
-        const currentUrl = window.location.href;
-        if (currentUrl.includes("verificaai.online")) {
-            console.log("Já está no destino, não redirecionar");
+        // Evita redirecionamento em loop
+        if (window.location.href.includes("verificaai.online")) {
+            window._redirectExecuted = true;
             return;
         }
         
-        // Log completo para debug
-        console.log("=== DETECÇÃO COMPLETA ===");
-        console.log("User Agent:", navigator.userAgent);
-        console.log("Largura:", window.innerWidth);
-        console.log("Altura:", window.innerHeight);
-        console.log("Touch screen:", hasTouchScreen);
-        console.log("isDesktopUA:", isDesktopUA);
-        console.log("isMobileUA:", isMobileUA);
-        console.log("isTablet:", isTablet);
-        console.log("Resultado FINAL - isMobile:", isMobile);
-        console.log("==========================");
+        // Log para debug
+        console.log("User Agent:", userAgent);
+        console.log("Resultado: isMobile =", isMobile);
         
-        // Marca que já executou para não repetir
         window._redirectExecuted = true;
         
-        // Se NÃO for mobile (DESKTOP) - redireciona
+        // Se NÃO for mobile (DESKTOP) -> REDIRECIONA
         if (!isMobile) {
-            console.log("🚨 REDIRECIONANDO para desktop:", redirectUrl);
-            // Pequeno delay para garantir que os logs apareçam
-            setTimeout(function() {
-                window.location.replace(redirectUrl);
-            }, 100);
+            console.log("🚨 REDIRECIONANDO para:", redirectUrl);
+            window.location.replace(redirectUrl);
         } else {
-            console.log("📱 Mantendo na página mobile");
-            // Mostra o conteúdo (caso estivesse oculto)
+            console.log("✅ Mantendo na página mobile");
             document.body.classList.remove('hidden');
         }
     })();
@@ -192,8 +159,6 @@
 <body class="hidden">
 
 <div class="wrapper">
-
-    <!-- LOGO TELEGRAM -->
     <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="telegram-logo" alt="Telegram Logo" width="70" height="70">
 
     <h1>Acesso Direto 🔒</h1>
@@ -208,7 +173,6 @@
         <p>⚠️ Disponibilidade limitada</p>
     </div>
 
-    <!-- 🔥 TROQUE PELO LINK DO SEU BOT -->
     <a href="https://exclusivo.online/l/53dc3e65?shk=z87vej7s" class="button">
         ACESSAR CONTEÚDO AGORA
     </a>
@@ -216,17 +180,16 @@
     <div class="footer">
         Você será redirecionado para o Telegram.
     </div>
-
 </div>
 
 <script>
-    // Script auxiliar para garantir que o conteúdo apareça após 1 segundo se algo der errado
+    // Timeout de segurança
     setTimeout(function() {
         if (document.body.classList.contains('hidden')) {
-            console.log("Timeout - forçando exibição do conteúdo");
+            console.log("Timeout - forçando exibição");
             document.body.classList.remove('hidden');
         }
-    }, 1000);
+    }, 2000);
 </script>
 
 </body>
