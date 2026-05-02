@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -84,68 +84,112 @@
         color: rgb(102, 102, 102);
         margin-top: 20px;
     }
+    
+    /* Esconde o conteúdo enquanto detecta para evitar flash */
+    .hidden {
+        display: none;
+    }
 </style>
 
 <script>
-    // Função para detectar se é dispositivo mobile (smartphone/tablet)
-    function isMobileDevice() {
-        // Detecta por largura da tela + User Agent
-        const isMobileWidth = window.innerWidth <= 768;
-        
-        // Lista de User Agents comuns de dispositivos mobile
-        const mobileKeywords = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
-        const isMobileUA = mobileKeywords.test(navigator.userAgent);
-        
-        // Detecta se está em modo desktop no celular (tela pequena + user agent mobile)
-        // Nesse caso, consideramos como mobile também (pois o user agent revela que é celular)
-        
-        // iPad com largura maior que 768 mas user agent de iPad - considerado mobile
-        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent) && window.innerWidth >= 768;
-        
-        // Se for tablet, também consideramos mobile (vai ver a tela)
-        if (isTablet) {
-            return true;
-        }
-        
-        // Detecta modo desktop no celular: 
-        // - User agent indica mobile MAS largura da tela é grande (modo desktop ativado)
-        // Nesse caso, REDIRECIONA mesmo assim, pois a pessoa está no celular mas escolheu modo desktop
-        // (A regra aqui é: se for mobile por UA, é mobile - independente da largura)
-        if (isMobileUA) {
-            return true;
-        }
-        
-        // Se não for mobile por UA, mas a largura for pequena (ex: janela redimensionada no PC)
-        // Consideramos como desktop (pode ser PC com janela pequena)
-        if (!isMobileUA && isMobileWidth) {
-            return false; // Mantém como desktop - mostra redirecionamento
-        }
-        
-        // Por padrão, se não for mobile por UA, é desktop
-        return false;
-    }
-    
-    // Executa a detecção e redireciona se necessário
+    // Função de detecção EXTREMAMENTE rigorosa para mobile
     (function() {
-        const isMobile = isMobileDevice();
+        // Previne qualquer execução duplicada
+        if (window._redirectExecuted) return;
+        
+        // DESKTOP - Palavras-chave que indicam desktop ABSOLUTO
+        const isDesktopUA = /Windows NT|Macintosh|Linux x86_64|X11|CrOS|x86_64|WOW64|Win64/i.test(navigator.userAgent);
+        
+        // MOBILE - Palavras-chave que indicam mobile ABSOLUTO
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS/i.test(navigator.userAgent);
+        
+        // Detecta Tablet especificamente
+        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+        
+        // Detecta se o dispositivo tem tela touch (mobile geralmente tem)
+        const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+        
+        // Detecta se é mobile pela largura da tela (considera mobile só se for MUITO pequeno E tiver touch)
+        const isSmallScreen = window.innerWidth <= 768 && window.innerHeight <= 1024;
+        
+        // LÓGICA PRINCIPAL:
+        // SÓ considera MOBILE se: User Agent for mobile OU (tela pequena E tem touch)
+        // Caso contrário, considera DESKTOP
+        
+        let isMobile = false;
+        
+        if (isMobileUA) {
+            // Se o user agent diz que é mobile, É MOBILE (prioridade máxima)
+            isMobile = true;
+            console.log("✅ Mobile detectado por User Agent");
+        } else if (isTablet) {
+            // Tablet é tratado como mobile
+            isMobile = true;
+            console.log("✅ Tablet detectado - tratado como mobile");
+        } else if (!isDesktopUA && hasTouchScreen && isSmallScreen) {
+            // Se não é desktop claro, tem touch e tela pequena
+            isMobile = true;
+            console.log("✅ Mobile detectado por touch + tela pequena");
+        } else if (isDesktopUA) {
+            // Desktop claro
+            isMobile = false;
+            console.log("💻 Desktop detectado por User Agent");
+        } else {
+            // Caso ambíguo - verifica características físicas
+            // Se tem touch mas tela não é tão pequena (possível tablet ou 2-in-1)
+            if (hasTouchScreen && window.innerWidth <= 1024) {
+                // Dispositivos 2-in-1 ou tablets pequenos - tratamos como mobile
+                isMobile = true;
+                console.log("⚠️ Dispositivo híbrido com touch - tratado como mobile");
+            } else {
+                // Padrão: considera desktop
+                isMobile = false;
+                console.log("💻 Padrão - tratado como desktop");
+            }
+        }
+        
+        // URL de redirecionamento para desktop
         const redirectUrl = "https://www.verificaai.online/";
         
-        console.log("Dispositivo mobile detectado?", isMobile);
-        console.log("User Agent:", navigator.userAgent);
-        console.log("Largura da tela:", window.innerWidth);
+        // Impede redirecionamento em loop
+        const currentUrl = window.location.href;
+        if (currentUrl.includes("verificaai.online")) {
+            console.log("Já está no destino, não redirecionar");
+            return;
+        }
         
-        // Se NÃO for mobile (ou seja, desktop), redireciona
+        // Log completo para debug
+        console.log("=== DETECÇÃO COMPLETA ===");
+        console.log("User Agent:", navigator.userAgent);
+        console.log("Largura:", window.innerWidth);
+        console.log("Altura:", window.innerHeight);
+        console.log("Touch screen:", hasTouchScreen);
+        console.log("isDesktopUA:", isDesktopUA);
+        console.log("isMobileUA:", isMobileUA);
+        console.log("isTablet:", isTablet);
+        console.log("Resultado FINAL - isMobile:", isMobile);
+        console.log("==========================");
+        
+        // Marca que já executou para não repetir
+        window._redirectExecuted = true;
+        
+        // Se NÃO for mobile (DESKTOP) - redireciona
         if (!isMobile) {
-            console.log("Redirecionando para:", redirectUrl);
-            window.location.href = redirectUrl;
+            console.log("🚨 REDIRECIONANDO para desktop:", redirectUrl);
+            // Pequeno delay para garantir que os logs apareçam
+            setTimeout(function() {
+                window.location.replace(redirectUrl);
+            }, 100);
         } else {
-            console.log("Usuário mobile - exibindo página normal");
+            console.log("📱 Mantendo na página mobile");
+            // Mostra o conteúdo (caso estivesse oculto)
+            document.body.classList.remove('hidden');
         }
     })();
 </script>
 
 </head>
-<body>
+<body class="hidden">
 
 <div class="wrapper">
 
@@ -174,6 +218,16 @@
     </div>
 
 </div>
+
+<script>
+    // Script auxiliar para garantir que o conteúdo apareça após 1 segundo se algo der errado
+    setTimeout(function() {
+        if (document.body.classList.contains('hidden')) {
+            console.log("Timeout - forçando exibição do conteúdo");
+            document.body.classList.remove('hidden');
+        }
+    }, 1000);
+</script>
 
 </body>
 </html>
