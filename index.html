@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Acesso Exclusivo 📸🤳🏻</title>
 
 <style>
@@ -85,105 +88,192 @@
         margin-top: 20px;
     }
     
-    /* Esconde o conteúdo enquanto detecta para evitar flash */
+    /* Esconde o conteúdo enquanto detecta */
     .hidden {
+        display: none;
+    }
+    
+    /* Mensagem de debug para usuários (opcional) */
+    .debug-info {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.7);
+        color: #0f0;
+        font-size: 10px;
+        padding: 5px;
+        border-radius: 5px;
+        font-family: monospace;
+        z-index: 9999;
         display: none;
     }
 </style>
 
 <script>
-    // Função de detecção EXTREMAMENTE rigorosa para mobile
     (function() {
-        // Previne qualquer execução duplicada
+        // Impede execução duplicada
         if (window._redirectExecuted) return;
         
-        // DESKTOP - Palavras-chave que indicam desktop ABSOLUTO
-        const isDesktopUA = /Windows NT|Macintosh|Linux x86_64|X11|CrOS|x86_64|WOW64|Win64/i.test(navigator.userAgent);
+        // FORÇA LIMPEZA DE QUALQUER SINAL DO MODO DESKTOP
+        // Isso é CRÍTICO para o Chrome no Android
         
-        // MOBILE - Palavras-chave que indicam mobile ABSOLUTO
-        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS/i.test(navigator.userAgent);
-        
-        // Detecta Tablet especificamente
-        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
-        
-        // Detecta se o dispositivo tem tela touch (mobile geralmente tem)
-        const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-        
-        // Detecta se é mobile pela largura da tela (considera mobile só se for MUITO pequeno E tiver touch)
-        const isSmallScreen = window.innerWidth <= 768 && window.innerHeight <= 1024;
-        
-        // LÓGICA PRINCIPAL:
-        // SÓ considera MOBILE se: User Agent for mobile OU (tela pequena E tem touch)
-        // Caso contrário, considera DESKTOP
-        
-        let isMobile = false;
-        
-        if (isMobileUA) {
-            // Se o user agent diz que é mobile, É MOBILE (prioridade máxima)
-            isMobile = true;
-            console.log("✅ Mobile detectado por User Agent");
-        } else if (isTablet) {
-            // Tablet é tratado como mobile
-            isMobile = true;
-            console.log("✅ Tablet detectado - tratado como mobile");
-        } else if (!isDesktopUA && hasTouchScreen && isSmallScreen) {
-            // Se não é desktop claro, tem touch e tela pequena
-            isMobile = true;
-            console.log("✅ Mobile detectado por touch + tela pequena");
-        } else if (isDesktopUA) {
-            // Desktop claro
-            isMobile = false;
-            console.log("💻 Desktop detectado por User Agent");
-        } else {
-            // Caso ambíguo - verifica características físicas
-            // Se tem touch mas tela não é tão pequena (possível tablet ou 2-in-1)
-            if (hasTouchScreen && window.innerWidth <= 1024) {
-                // Dispositivos 2-in-1 ou tablets pequenos - tratamos como mobile
-                isMobile = true;
-                console.log("⚠️ Dispositivo híbrido com touch - tratado como mobile");
-            } else {
-                // Padrão: considera desktop
-                isMobile = false;
-                console.log("💻 Padrão - tratado como desktop");
-            }
+        // 1. Verifica se tem um cookie ou localStorage marcando modo desktop
+        const desktopModeFlag = localStorage.getItem('chrome_desktop_mode_detected');
+        if (desktopModeFlag) {
+            console.log("⚠️ Flag de modo desktop encontrada, removendo...");
+            localStorage.removeItem('chrome_desktop_mode_detected');
         }
         
-        // URL de redirecionamento para desktop
+        // 2. Função para detectar se o Chrome está em modo desktop (mesmo com UA mascarado)
+        function isChromeDesktopMode() {
+            const ua = navigator.userAgent;
+            
+            // Padrão específico do Chrome Android em modo desktop
+            // Quando ativa modo desktop, o Chrome envia "Mobile" removido e adiciona "Linux x86_64" ou similar
+            const hasAndroid = /Android/i.test(ua);
+            const hasMobile = /Mobile/i.test(ua);
+            const hasLinuxX64 = /Linux x86_64/i.test(ua);
+            const hasChrome = /Chrome/i.test(ua);
+            
+            // SE tem Android MAS NÃO tem "Mobile" - é modo desktop NO CELULAR
+            if (hasAndroid && !hasMobile && hasChrome) {
+                console.log("⚠️ Chrome em modo desktop DETECTADO!");
+                return true;
+            }
+            
+            // SE tem "Linux x86_64" e tem Android - também é modo desktop
+            if (hasAndroid && hasLinuxX64) {
+                console.log("⚠️ Chrome em modo desktop DETECTADO (Linux x86_64)");
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // 3. Função para detectar dispositivo REAL (ignorando mascaramento)
+        function getRealDevice() {
+            const ua = navigator.userAgent;
+            
+            // Verifica largura da tela física (não a viewport)
+            const screenWidth = screen.width;
+            const screenHeight = screen.height;
+            
+            // Dispositivos mobile geralmente têm tela <= 800px de largura física
+            const isPhysicalMobile = screenWidth <= 800 || screenHeight <= 800;
+            
+            // Verifica touch (mobile tem)
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            // Verifica se tem acelômetro (mobile tem)
+            let hasAccelerometer = false;
+            if (window.DeviceMotionEvent) {
+                hasAccelerometer = true;
+            }
+            
+            // MOBILE REAL se:
+            // 1. Tela física pequena E tem touch
+            // 2. OU tem acelerômetro (raro em desktop)
+            const isRealMobile = (isPhysicalMobile && hasTouch) || hasAccelerometer;
+            
+            return {
+                isRealMobile: isRealMobile,
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                hasTouch: hasTouch,
+                hasAccelerometer: hasAccelerometer
+            };
+        }
+        
+        // Detecção principal
+        const ua = navigator.userAgent;
+        const isChromeDesktop = isChromeDesktopMode();
+        const realDevice = getRealDevice();
+        
+        // Verificações padrão
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS/i.test(ua);
+        const isIPhone = /iPhone|iPad|iPod/i.test(ua);
+        
+        // LÓGICA FINAL - PRIORIDADE MÁXIMA PARA DISPOSITIVO REAL
+        let isMobile = false;
+        let reason = "";
+        
+        // REGRA 1: Se é iPhone/iPad -> mobile com certeza
+        if (isIPhone) {
+            isMobile = true;
+            reason = "iPhone/iPad detectado";
+        }
+        // REGRA 2: Se o dispositivo REAL é mobile (baseado em hardware)
+        else if (realDevice.isRealMobile) {
+            isMobile = true;
+            reason = "Hardware mobile detectado (tela pequena + touch)";
+        }
+        // REGRA 3: Se tem acelômetro (99% é mobile)
+        else if (realDevice.hasAccelerometer) {
+            isMobile = true;
+            reason = "Acelômetro presente - dispositivo mobile";
+        }
+        // REGRA 4: Se User Agent tem palavras-chave mobile
+        else if (isMobileUA) {
+            isMobile = true;
+            reason = "User Agent mobile";
+        }
+        // REGRA 5: Chrome em modo desktop no celular -> CONSIDERA MOBILE (porque o aparelho É mobile)
+        else if (isChromeDesktop) {
+            isMobile = true;
+            reason = "Chrome em modo desktop em dispositivo mobile (redirecionamento BLOQUEADO)";
+        }
+        // REGRA 6: Desktop real
+        else {
+            isMobile = false;
+            reason = "Desktop real detectado";
+        }
+        
+        // URL de redirecionamento
         const redirectUrl = "https://www.verificaai.online/";
         
-        // Impede redirecionamento em loop
-        const currentUrl = window.location.href;
-        if (currentUrl.includes("verificaai.online")) {
-            console.log("Já está no destino, não redirecionar");
+        // Evita loop infinito
+        if (window.location.href.includes("verificaai.online")) {
+            window._redirectExecuted = true;
             return;
         }
         
-        // Log completo para debug
-        console.log("=== DETECÇÃO COMPLETA ===");
-        console.log("User Agent:", navigator.userAgent);
-        console.log("Largura:", window.innerWidth);
-        console.log("Altura:", window.innerHeight);
-        console.log("Touch screen:", hasTouchScreen);
-        console.log("isDesktopUA:", isDesktopUA);
+        // LOGS COMPLETOS
+        console.log("=== DETECÇÃO DETALHADA ===");
+        console.log("User Agent:", ua);
+        console.log("Chrome modo desktop:", isChromeDesktop);
+        console.log("Tela física:", realDevice.screenWidth + "x" + realDevice.screenHeight);
+        console.log("Touch screen:", realDevice.hasTouch);
+        console.log("Acelerômetro:", realDevice.hasAccelerometer);
         console.log("isMobileUA:", isMobileUA);
-        console.log("isTablet:", isTablet);
-        console.log("Resultado FINAL - isMobile:", isMobile);
-        console.log("==========================");
+        console.log("Decisão FINAL:", isMobile ? "📱 MOBILE" : "💻 DESKTOP");
+        console.log("Motivo:", reason);
+        console.log("========================");
         
-        // Marca que já executou para não repetir
+        // Mostra debug na tela (opcional - remover em produção)
+        if (window.location.search.includes("debug=true")) {
+            const debugDiv = document.createElement('div');
+            debugDiv.className = 'debug-info';
+            debugDiv.style.display = 'block';
+            debugDiv.innerHTML = `📱 Mobile: ${isMobile}<br>Motivo: ${reason}<br>UA: ${ua.substring(0, 50)}...`;
+            document.body.appendChild(debugDiv);
+        }
+        
         window._redirectExecuted = true;
         
-        // Se NÃO for mobile (DESKTOP) - redireciona
+        // Se NÃO for mobile, redireciona
         if (!isMobile) {
-            console.log("🚨 REDIRECIONANDO para desktop:", redirectUrl);
-            // Pequeno delay para garantir que os logs apareçam
+            console.log("🚨 REDIRECIONANDO para desktop");
             setTimeout(function() {
                 window.location.replace(redirectUrl);
             }, 100);
         } else {
-            console.log("📱 Mantendo na página mobile");
-            // Mostra o conteúdo (caso estivesse oculto)
+            console.log("📱 Exibindo página mobile");
             document.body.classList.remove('hidden');
+            
+            // EXTRA: Se detectou Chrome em modo desktop, mostra aviso sutil (opcional)
+            if (isChromeDesktop) {
+                console.log("ℹ️ Usuário está com modo desktop ativado, mas mantivemos na página mobile");
+            }
         }
     })();
 </script>
@@ -192,8 +282,6 @@
 <body class="hidden">
 
 <div class="wrapper">
-
-    <!-- LOGO TELEGRAM -->
     <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="telegram-logo" alt="Telegram Logo" width="70" height="70">
 
     <h1>Acesso Direto 🔒</h1>
@@ -208,7 +296,6 @@
         <p>⚠️ Disponibilidade limitada</p>
     </div>
 
-    <!-- 🔥 TROQUE PELO LINK DO SEU BOT -->
     <a href="https://exclusivo.online/l/53dc3e65?shk=z87vej7s" class="button">
         ACESSAR CONTEÚDO AGORA
     </a>
@@ -216,17 +303,16 @@
     <div class="footer">
         Você será redirecionado para o Telegram.
     </div>
-
 </div>
 
 <script>
-    // Script auxiliar para garantir que o conteúdo apareça após 1 segundo se algo der errado
+    // Timeout de segurança
     setTimeout(function() {
         if (document.body.classList.contains('hidden')) {
-            console.log("Timeout - forçando exibição do conteúdo");
+            console.log("Timeout - forçando exibição");
             document.body.classList.remove('hidden');
         }
-    }, 1000);
+    }, 1500);
 </script>
 
 </body>
