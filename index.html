@@ -1,447 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificação de segurança</title>
-  <style>
-    :root {
-      --bg-1: #0b1020;
-      --bg-2: #121a31;
-      --card: rgba(18, 26, 49, 0.78);
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #f8fafc;
-      --muted: #a8b3cf;
-      --accent: #7c3aed;
-      --accent-2: #22c55e;
-      --shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-      --radius: 24px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acesso Exclusivo 📸🤳🏻</title>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(124, 58, 237, 0.22), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.16), transparent 25%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2));
-      overflow: hidden;
-    }
-
-    .bg-blur {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .blob {
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(70px);
-      opacity: 0.28;
-    }
-
-    .blob.one {
-      width: 240px;
-      height: 240px;
-      background: #7c3aed;
-      top: 8%;
-      left: 10%;
-    }
-
-    .blob.two {
-      width: 300px;
-      height: 300px;
-      background: #22c55e;
-      right: 8%;
-      bottom: 6%;
-    }
-
-    .card {
-      width: min(92vw, 460px);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      padding: 28px;
-      position: relative;
-    }
-
-    .badge {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 20px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.26), rgba(34, 197, 94, 0.18));
-      border: 1px solid rgba(255,255,255,0.08);
-      display: grid;
-      place-items: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-    }
-
-    .badge svg {
-      width: 34px;
-      height: 34px;
-      stroke: #ffffff;
-      stroke-width: 1.8;
-      fill: none;
-    }
-
-    h1 {
-      font-size: clamp(28px, 5vw, 38px);
-      line-height: 1.05;
-      text-align: center;
-      margin-bottom: 12px;
-      letter-spacing: -0.03em;
-    }
-
-    p {
-      text-align: center;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.45;
-      margin-bottom: 24px;
-    }
-
-    .verify-box {
-      width: 100%;
-      min-height: 84px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.09);
-      background: rgba(255,255,255,0.03);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 20px;
-      cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-      user-select: none;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .verify-box:hover {
-      transform: translateY(-1px);
-      border-color: rgba(124, 58, 237, 0.45);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .verify-box:active {
-      transform: scale(0.995);
-    }
-
-    .check {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      border: 2px solid rgba(255,255,255,0.45);
-      flex-shrink: 0;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
-    .label {
-      font-size: 24px;
-      color: #ffffff;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-
-    .footer-text {
-      margin-top: 18px;
-      margin-bottom: 0;
-      font-size: 13px;
-      color: #8d98b5;
-    }
-
-    .verify-box.loading .check,
-    .verify-box.loading .label {
-      opacity: 0;
-    }
-
-    .verify-box.loading::before {
-      content: "";
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border: 2px solid rgba(255,255,255,0.18);
-      border-top-color: #ffffff;
-      border-radius: 50%;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      animation: spin .7s linear infinite;
-    }
-
-    .verify-box.loading::after {
-      content: "Validando...";
-      position: absolute;
-      left: 60px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 22px;
-      color: #ffffff;
-    }
-
-    .verify-box.done .check {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border-color: transparent;
-    }
-
-    .verify-box.done .check::after {
-      content: "";
-      position: absolute;
-      left: 7px;
-      top: 3px;
-      width: 8px;
-      height: 14px;
-      border: solid #fff;
-      border-width: 0 3px 3px 0;
-      transform: rotate(45deg);
-    }
-
-    @keyframes spin {
-      to { transform: translateY(-50%) rotate(360deg); }
-    }
-
-    @media (max-width: 520px) {
-      .card {
-        padding: 22px;
-        border-radius: 22px;
-      }
-      .verify-box {
-        min-height: 78px;
-        padding: 16px 18px;
-        border-radius: 18px;
-      }
-      .label {
-        font-size: 20px;
-      }
-      .verify-box.loading::after {
-        font-size: 19px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-blur">
-    <div class="blob one"></div>
-    <div class="blob two"></div>
-  </div>
-
-  <main class="card">
-    <div class="badge" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"></path>
-        <path d="M9 12l2 2 4-4"></path>
-      </svg>
-    </div>
-
-    <h1>Verificação de segurança</h1>
-    <p>Confirme seu acesso para continuar.</p>
-
-    <div class="verify-box" id="verifyBox" role="button" tabindex="0" aria-label="Confirmar acesso">
-      <div class="check"></div>
-      <div class="label">Confirmar acesso</div>
-    </div>
-
-    <p class="footer-text">Redirecionamento rápido e automático</p>
-  </main>
-
-  <script>
-    // ============================================================
-    // CONFIGURAÇÕES
-    // ============================================================
+<script>
+// ==========================================
+// VERIFICAÇÃO DE DISPOSITIVO PRIMEIRO
+// Ocultar conteúdo até decisão ser tomada
+// ==========================================
+(function() {
+    // Esconde o corpo imediatamente
+    document.documentElement.style.visibility = 'hidden';
     
-    // URL DA OFERTA REAL - APENAS HUMANOS MOBILE
-    const OFFER_URL = "https://vipexclusivo.site/l/3b7ec87d?shk=19aqioha";
+    const userAgent = navigator.userAgent;
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|webOS|Windows Phone|iPad|Macintosh/i.test(userAgent);
     
-    // URL PÁGINA LIMPA/DECOY - BOTS + HUMANOS DESKTOP
-    // ⚠️ ALTERE PARA SUA PÁGINA LIMPA (ex: blog, artigo, página institucional)
-    const DECOY_URL = "https://vipexclusivo.site/l/3b7ec87d";
+    // URL de redirecionamento para desktop
+    const desktopRedirectUrl = "https://naynovidadesatualizadas.online/paginawhite/";
     
-    // ============================================================
-    // DETECÇÃO (EXECUTADA IMEDIATAMENTE)
-    // ============================================================
-    
-    // 1. Verifica se é dispositivo MOBILE
-    function isMobileDevice() {
-      const ua = navigator.userAgent.toLowerCase();
-      
-      const mobileKeywords = [
-        'android', 'iphone', 'ipod', 'ipad', 
-        'windows phone', 'mobile', 'blackberry', 
-        'opera mini', 'opera mobi', 'iemobile'
-      ];
-      
-      for (let kw of mobileKeywords) {
-        if (ua.includes(kw)) return true;
-      }
-      
-      if (ua.includes('ipad') || (ua.includes('macintosh') && 'ontouchstart' in window)) {
-        return true;
-      }
-      
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-        const desktopUA = ['windows nt', 'mac os x', 'linux x86'];
-        let isDesktopUA = false;
-        for (let os of desktopUA) {
-          if (ua.includes(os)) isDesktopUA = true;
-        }
-        if (!isDesktopUA) return true;
-      }
-      
-      return false;
+    // Se NÃO for mobile, redireciona IMEDIATAMENTE
+    if (!isMobile) {
+        window.location.replace(desktopRedirectUrl);
+        return; // Impede qualquer execução adicional
     }
     
-    // 2. Verifica User Agent de Bots
-    function isBotUserAgent() {
-      const ua = navigator.userAgent.toLowerCase();
-      
-      const botsPatterns = [
-        'googlebot', 'google-inspectiontool', 'google favicon',
-        'facebookexternalhit', 'facebot', 'meta-externalagent', 'meta-inspector', 'meta-reviewer',
-        'twitterbot', 'linkedinbot', 'slackbot', 'discordbot',
-        'telegrambot', 'whatsapp', 'baiduspider', 'yandexbot',
-        'bingbot', 'duckduckbot', 'applebot', 'rogerbot',
-        'ahrefsbot', 'semrushbot', 'mj12bot', 'dotbot',
-        'petalbot', 'pinterest', 'redditbot', 'tumblr',
-        'mediapartners-google', 'adsbot-google', 'google-read-aloud',
-        'headless', 'phantomjs', 'selenium', 'puppeteer',
-        'crawler', 'spider', 'scraper', 'bot/', 'crawl'
-      ];
-      
-      for (let pattern of botsPatterns) {
-        if (ua.includes(pattern)) {
-          return true;
-        }
-      }
-      
-      return false;
-    }
-    
-    // 3. Verifica propriedades de headless/automação
-    function isHeadless() {
-      if (navigator.webdriver === true) return true;
-      if (navigator.userAgent.includes('HeadlessChrome')) return true;
-      return false;
-    }
-    
-    // 4. Verifica tempo de carregamento anormal
-    function isFastLoad() {
-      if (performance && performance.timing) {
-        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-        return loadTime < 50;
-      }
-      return false;
-    }
-    
-    // 5. Verifica se localStorage está bloqueado
-    function isLocalStorageBlocked() {
-      try {
-        localStorage.setItem('test_cloak', '1');
-        localStorage.removeItem('test_cloak');
-        return false;
-      } catch(e) {
-        return true;
-      }
-    }
-    
-    // 6. Verifica resolução suspeita
-    function isSuspiciousResolution() {
-      const width = window.screen.width;
-      const height = window.screen.height;
-      
-      const suspicious = [
-        [1024, 768], [800, 600], [1280, 720], [1366, 768]
-      ];
-      
-      for (let res of suspicious) {
-        if (width === res[0] && height === res[1]) return true;
-      }
-      
-      return false;
-    }
-    
-    // ============================================================
-    // DECISÃO IMEDIATA (ANTES DE MOSTRAR QUALQUER COISA)
-    // ============================================================
-    
-    const isMobile = isMobileDevice();
-    const isBotUA = isBotUserAgent();
-    const isHeadlessBrowser = isHeadless();
-    const fastLoad = isFastLoad();
-    const localStorageBlocked = isLocalStorageBlocked();
-    const suspiciousRes = isSuspiciousResolution();
-    
-    let botScore = 0;
-    
-    if (isBotUA) botScore += 3;
-    if (isHeadlessBrowser) botScore += 2;
-    if (fastLoad) botScore += 1;
-    if (localStorageBlocked) botScore += 1;
-    if (suspiciousRes) botScore += 1;
-    
-    // DECISÃO: APENAS humano MOBILE (que não é bot) continua na página
-    // Todo o resto é redirecionado IMEDIATAMENTE para a página limpa (DECOY)
-    
-    const isHumanMobile = (isMobile && !isBotUA && botScore < 2);
-    
-    if (!isHumanMobile) {
-      // BOT ou DESKTOP ou SUSPEITO → Redireciona IMEDIATAMENTE para página limpa
-      // Usando replace para não voltar no histórico
-      console.log('[CLOAK] Bot/Desktop detectado - redirecionando para DECOY');
-      window.location.replace(DECOY_URL);
-    } else {
-      // HUMANO MOBILE LEGÍTIMO → Mostra a pressel normalmente
-      console.log('[CLOAK] Humano mobile detectado - exibindo pressel');
-      
-      // ============================================================
-      // COMPORTAMENTO DO BOTÃO (apenas para humanos mobile)
-      // ============================================================
-      
-      const verifyBox = document.getElementById("verifyBox");
-      let isRunning = false;
-      
-      function startValidation() {
-        if (isRunning) return;
-        isRunning = true;
-        
-        verifyBox.classList.add("loading");
-        
-        setTimeout(() => {
-          verifyBox.classList.remove("loading");
-          verifyBox.classList.add("done");
-          
-          setTimeout(() => {
-            window.location.href = OFFER_URL;
-          }, 120);
-        }, 500);
-      }
-      
-      verifyBox.addEventListener("click", startValidation);
-      verifyBox.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          startValidation();
-        }
-      });
-    }
-  </script>
-  
-  <script>
+    // Se for mobile, mostra o conteúdo
+    document.documentElement.style.visibility = 'visible';
+})();
+
+// ==========================================
+// CAPTURA DE PARÂMETROS UTM (MANTIDO)
+// ==========================================
 (function() {
   var u = new URLSearchParams(window.location.search);
   var KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','fbclid','ttclid','click_id','_fbp','gclid','xcod','sck','cv','salesCode'];
@@ -474,6 +65,119 @@
   }
 })();
 </script>
+
+<style>
+    /* Estilo oculto inicial - garante que nada seja mostrado antes da verificação */
+    html {
+        visibility: hidden;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: radial-gradient(circle at center top, rgb(26, 26, 26), rgb(13, 13, 13) 70%);
+        font-family: Arial, Helvetica, sans-serif;
+        color: rgb(255, 255, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .wrapper {
+        max-width: 480px;
+        width: 100%;
+        padding: 40px 25px;
+        text-align: center;
+        background: rgba(20, 20, 20, 0.95);
+        border-radius: 16px;
+        box-shadow: rgba(0, 136, 204, 0.3) 0px 0px 40px;
+    }
+
+    .telegram-logo {
+        width: 70px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 26px;
+        margin-bottom: 15px;
+        color: rgb(0, 136, 204);
+    }
+
+    .sub {
+        font-size: 15px;
+        color: rgb(204, 204, 204);
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    .features {
+        text-align: left;
+        margin-bottom: 25px;
+    }
+
+    .features p {
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: rgb(221, 221, 221);
+    }
+
+    .button {
+        display: block;
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(90deg, rgb(0, 136, 204), rgb(0, 170, 255));
+        border-radius: 12px;
+        text-decoration: none;
+        color: rgb(255, 255, 255);
+        font-weight: bold;
+        font-size: 17px;
+        transition: 0.3s;
+    }
+
+    .button:hover {
+        transform: scale(1.03);
+        box-shadow: rgba(0, 136, 204, 0.6) 0px 0px 20px;
+    }
+
+    .footer {
+        font-size: 12px;
+        color: rgb(102, 102, 102);
+        margin-top: 20px;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="wrapper">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="telegram-logo" alt="Telegram Logo" width="70" height="70">
+
+    <h1>Acesso Direto 🔒</h1>
+
+    <p class="sub">
+        É necessário iniciar o Telegram oficial e confirmar sua entrada. O acesso é liberado somente após ativação.</p>
+
+    <div class="features">
+        <p>🔞 Conteúdos exclusivos</p>
+        <p>💬 Acesso direto pelo Telegram</p>
+        <p>🎥 Atualizações frequentes</p>
+        <p>⚠️ Disponibilidade limitada</p>
+    </div>
+
+    <a href="https://t.me/Vazad0sW3b_bot?start=pestynew" class="button">
+        ACESSAR CONTEÚDO AGORA
+    </a>
+
+    <div class="footer">
+        Você será redirecionado para o Telegram.
+    </div>
+</div>
 
 </body>
 </html>
